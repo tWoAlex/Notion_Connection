@@ -4,12 +4,28 @@ from pydantic import BaseModel, ValidationError
 
 from ..base import NotionFragmentBlock
 from . import TextColor
-from .base_schemas import (AnnotationsSchema,
-                           TextContentSchema,
-                           UrlSchema)
 
 
 # Schemas
+
+class AnnotationsSchema(BaseModel):
+    bold: bool = False
+    code: bool = False
+    color: TextColor = TextColor.DEFAULT
+    italic: bool = False
+    strikethrough: bool = False
+    underline: bool = False
+
+
+class UrlSchema(BaseModel):
+    url: str
+
+
+class TextContentSchema(BaseModel):
+    content: str
+    link: UrlSchema | None
+
+
 class TextFragmentSchema(BaseModel):
     annotations: AnnotationsSchema = AnnotationsSchema()
     href: str | None = None

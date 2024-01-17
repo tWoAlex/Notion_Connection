@@ -1,5 +1,4 @@
-from typing import Any
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from ..base import NotionFragmentBlock
 from . import TextColor
