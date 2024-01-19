@@ -7,8 +7,7 @@ from http import HTTPStatus
 
 from aiohttp import ClientSession
 
-from .schemas import BaseBlockCreate, BaseBlockRetrieve, Page
-from notion.blocks.base import NotionBlock
+from notion.blocks.base import NotionBlock, BaseBlockRetrieveSchema
 
 BASE_URL = 'https://api.notion.com/v1'
 
@@ -59,35 +58,44 @@ class NotionConnection:
         if response.status == HTTPStatus.OK:
             return await response.json()
 
+    async def _update_block(self, block: NotionBlock) -> dict | None:
+        """Returns JSON[dict of items] response with block info"""
+        response = await self._session.patch(Endpoints.blocks.format(block.id),
+                                             headers=self._headers,
+                                             data=json.dumps(
+                                                 block.create_request_json()))
+        if response.status == HTTPStatus.OK:
+            return await response.json()
+
     async def _get_page(self, id: str) -> dict | None:
         response = await self._session.get(Endpoints.pages.format(id),
                                            headers=self._headers)
         if response.status == HTTPStatus.OK:
             return await response.json()
 
-    _BLOCK_TYPE_MATCH = {
-        # 'workspace': корень
-        'child_page': (_get_page, Page)
-    }
-
-    def validate(self, json: str, cls) -> BaseBlockRetrieve:
+    def validate(self, json: str, cls) -> BaseBlockRetrieveSchema:
         return cls.model_validate_json(json)
 
     async def get_item(self, id: str) -> dict | None:
         self._check_session()
         return await self._get_block(id)
 
-    async def get_children(self, id: str) -> dict | None:
+    async def update_item(self, item) -> dict | None:
         self._check_session()
-        response = await self._session.get(Endpoints.children.format(id),
+        return await self._update_block(item)
+
+    async def get_children_of(self, parent: str | NotionBlock) -> dict | None:
+        if not isinstance(parent, str):
+            parent = parent.id
+
+        self._check_session()
+        response = await self._session.get(Endpoints.children.format(parent),
                                            headers=self._headers)
         return await response.json()
 
-    # Successfully implementated:
-
-    async def append_children(self,
-                              parent: str | NotionBlock,
-                              children: list[NotionBlock]) -> dict:
+    async def append_children_to(self,
+                                 parent: str | NotionBlock,
+                                 children: list[NotionBlock]) -> dict:
         if not isinstance(parent, str):
             parent = parent.id
         children = [child.create_request_json() for child in children]

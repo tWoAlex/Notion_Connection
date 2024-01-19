@@ -1,12 +1,10 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
-from ..base import NotionFragmentBlock
-from . import TextColor
+from .text_color import TextColor
+from ...base import NotionFragmentBlock
 
-
-# Schemas
 
 class AnnotationsSchema(BaseModel):
     bold: bool = False
@@ -34,7 +32,6 @@ class TextFragmentSchema(BaseModel):
     type: Literal['text'] = 'text'
 
 
-# Classes
 class TextFragment(NotionFragmentBlock):
     def __init__(self, text: str = '', link: str = None,
                  color: TextColor = TextColor.DEFAULT,
@@ -51,6 +48,19 @@ class TextFragment(NotionFragmentBlock):
         self.strikethrough = strikethrough
         self.underline = underline
 
+    @classmethod
+    def from_schema(cls, schema: TextFragmentSchema) -> Any:
+        annotations = schema.annotations
+        return TextFragment(text=schema.text.content,
+                            link=(schema.text.link.url
+                                  if schema.text.link else None),
+                            color=annotations.color,
+                            bold=annotations.bold,
+                            code=annotations.code,
+                            italic=annotations.italic,
+                            strikethrough=annotations.strikethrough,
+                            underline=annotations.underline)
+
     def create_request_schema(self) -> TextFragmentSchema:
         return TextFragmentSchema(
             plain_text=self.text, href=self.link,
@@ -64,16 +74,3 @@ class TextFragment(NotionFragmentBlock):
                                    link=(UrlSchema(url=self.link)
                                          if self.link else None))
         )
-
-    @classmethod
-    def from_schema(cls, schema: TextFragmentSchema) -> Any:
-        annotations = schema.annotations
-        return cls(text=schema.text.content,
-                   link=(schema.text.link.url
-                         if schema.text.link else None),
-                   color=annotations.color,
-                   bold=annotations.bold,
-                   code=annotations.code,
-                   italic=annotations.italic,
-                   strikethrough=annotations.strikethrough,
-                   underline=annotations.underline)
