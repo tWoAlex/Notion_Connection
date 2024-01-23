@@ -8,18 +8,20 @@ from .toggle import Toggle # noqa
 from .to_do import ToDo # noqa
 from .bulleted_list_item import BulletedListItem # noqa
 from .numbered_list_item import NumberedListItem # noqa
+from .quote import Quote # noqa
+from .callout import Callout # noqa
 
 
 block_types = (Divider, Paragraph,
                Heading1, ToggleHeading1,
                Heading2, ToggleHeading2,
                Heading3, ToggleHeading3,
-               Toggle, ToDo,
+               Toggle, ToDo, Quote, Callout,
                BulletedListItem, NumberedListItem)
 
 text_types = (Paragraph,
               Heading1, ToggleHeading1,
               Heading2, ToggleHeading2,
               Heading3, ToggleHeading3,
-              Toggle, ToDo,
+              Toggle, ToDo, Quote, Callout,
               BulletedListItem, NumberedListItem)
