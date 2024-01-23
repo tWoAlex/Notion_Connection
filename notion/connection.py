@@ -8,6 +8,7 @@ from http import HTTPStatus
 from aiohttp import ClientSession
 
 from notion.blocks.base import NotionBlock, BaseBlockRetrieveSchema
+from notion.blocks import text
 
 BASE_URL = 'https://api.notion.com/v1'
 
@@ -76,9 +77,13 @@ class NotionConnection:
     def validate(self, json: str, cls) -> BaseBlockRetrieveSchema:
         return cls.model_validate_json(json)
 
-    async def get_item(self, id: str) -> dict | None:
+    async def get_item(self, id: str) -> NotionBlock:
         self._check_session()
-        return await self._get_block(id)
+        response = await self._get_block(id)
+        for block_type in text.block_types:
+            if block_type._schematic_type == response['type']:
+                return block_type.from_json_dict(response)
+        raise ValueError('Block type in response not recognized')
 
     async def update_item(self, item) -> dict | None:
         self._check_session()

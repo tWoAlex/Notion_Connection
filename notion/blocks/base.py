@@ -34,6 +34,10 @@ class NotionFragmentBlock(abc.ABC):
 
 
 class NotionBlock(NotionFragmentBlock):
+    _schematic_type: str = None
+    _create_chema = BaseBlockCreateSchema
+    _retrieve_schema = BaseBlockRetrieveSchema
+
     def __init__(self) -> None:
         self.id = None
         self.parent_id = None

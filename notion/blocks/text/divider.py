@@ -13,6 +13,8 @@ class DividerRetrieveSchema(BaseBlockRetrieveSchema, DividerCreateSchema):
 
 
 class Divider(NotionBlock):
+    _schematic_type = 'divider'
+
     @classmethod
     def from_schema(cls, schema: DividerRetrieveSchema) -> Any:
         divider = Divider()
