@@ -2,8 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from .text_color import TextColor
-from .text_fragment import TextFragmentSchema
+from ....core.literals import TextColor
+from . import TextFragmentSchema
 
 
 class RichTextSchema(BaseModel):
@@ -17,3 +17,7 @@ class RichTextToggleableSchema(RichTextSchema):
 
 class RichTextNonToggleableSchema(RichTextSchema):
     is_toggleable: Literal[False] = False
+
+
+class RichTextCheckableSchema(RichTextSchema):
+    checked: bool = False
